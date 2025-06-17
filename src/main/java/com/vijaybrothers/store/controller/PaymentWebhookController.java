@@ -26,7 +26,11 @@ public class PaymentWebhookController {
         @RequestBody @Valid Map<String, Object> payload,
         @RequestHeader(name="X-Gateway-Signature", required=false) String signature
     ) {
-        // TODO: verify signature if your gateway supports HMAC verification
+        // CRITICAL SECURITY TODO: Implement signature verification for this webhook immediately.
+        // This endpoint is vulnerable to spoofed requests without it.
+        // Consult your payment gateway's documentation for HMAC signature verification or similar mechanisms.
+        // Example: String calculatedSignature = calculateHmac(payload, sharedSecret);
+        //          if (!calculatedSignature.equals(signature)) { throw new SecurityException("Invalid signature"); }
         paymentService.processWebhook(payload);
         return ResponseEntity.ok(Map.of("status", "success"));
     }

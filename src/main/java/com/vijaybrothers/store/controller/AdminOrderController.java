@@ -32,7 +32,7 @@ public class AdminOrderController {
             OrderDetailDto dto = svc.getOrderDetail(orderId);
             return ResponseEntity.ok(dto);
         } catch (IllegalArgumentException e) {
-            return ResponseEntity.notFound().build();
+            return ResponseEntity.status(org.springframework.http.HttpStatus.NOT_FOUND).body(Map.of("error", e.getMessage()));
         }
     }
 

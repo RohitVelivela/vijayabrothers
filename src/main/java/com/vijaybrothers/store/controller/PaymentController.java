@@ -10,6 +10,10 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
 
+// DEVELOPER NOTE: The security for endpoints in this controller needs review.
+// Check SecurityConfig.java for current rules. Determine if these routes should be admin-only,
+// part of a guest checkout flow (and thus permitAll or tied to a guest session/order ID),
+// or require other specific authorization.
 @RestController
 @RequestMapping("/api/payments")
 @RequiredArgsConstructor
@@ -24,6 +28,9 @@ public class PaymentController {
             return ResponseEntity
                 .status(HttpStatus.CREATED)
                 .body(Map.of("message", "Payment recorded successfully"));
+        // DEVELOPER NOTE: This catch block for IllegalArgumentException returns a 400 Bad Request.
+        // This differs from the GlobalExceptionHandler which returns a 404 for IllegalArgumentException.
+        // Consider using a more specific custom exception from the service layer (e.g., InvalidPaymentDataException) if 400 is the desired response.
         } catch (IllegalArgumentException ex) {
             return ResponseEntity
                 .badRequest()

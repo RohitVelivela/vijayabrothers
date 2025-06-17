@@ -63,6 +63,8 @@ public class SecurityConfig {
                 .requestMatchers("/error").permitAll()
                 .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/products/**", "/api/categories/**").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/pages/**").permitAll()
+                .requestMatchers(HttpMethod.POST, "/api/contact").permitAll()
                 .requestMatchers("/api/cart/**").permitAll()
                 .requestMatchers("/api/checkout/guest").permitAll()
                 .requestMatchers("/api/payments/webhook").permitAll()
@@ -77,6 +79,8 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.GET, "/api/admin/orders/**").hasRole("ADMIN")
                 
                 // Default: require authentication for any other endpoint
+                // DEVELOPER NOTE: Routes in PaymentController (/api/payments/**) are currently caught by anyRequest().authenticated().
+                // Their access control (admin-only vs. part of guest/user flow) needs to be reviewed and explicitly configured.
                 .anyRequest().authenticated()
             )
             .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
