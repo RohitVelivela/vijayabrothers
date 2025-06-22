@@ -51,4 +51,19 @@ public interface ProductRepository extends JpaRepository<Product,Integer> {
 
     /** All flagged in stock */
     List<Product> findByInStockTrue();
+
+    @Query("SELECT p FROM Product p WHERE " +
+           "(:categoryId IS NULL OR p.category.id = :categoryId) AND " +
+           "(:color IS NULL OR LOWER(p.color) = LOWER(:color)) AND " +
+           "(:fabric IS NULL OR LOWER(p.fabric) = LOWER(:fabric)) AND " +
+           "(:inStock IS NULL OR p.inStock = :inStock)")
+    List<Product> filterProducts(
+        @Param("categoryId") Integer categoryId,
+        @Param("color") String color,
+        @Param("fabric") String fabric,
+        @Param("inStock") Boolean inStock
+    );
+
+    /** Check if any products exist for a given category */
+    boolean existsByCategory_CategoryId(Integer categoryId);
 }

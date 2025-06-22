@@ -1,5 +1,6 @@
 package com.vijaybrothers.store.controller;
 
+import com.vijaybrothers.store.dto.CartItemDto;
 import com.vijaybrothers.store.dto.cart.CartItemRequest;
 import com.vijaybrothers.store.dto.cart.CartUpdateRequest;
 import com.vijaybrothers.store.dto.cart.CartView;
@@ -11,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Map;
 import java.util.UUID;
 
 @RestController
@@ -54,18 +56,17 @@ public class CartController {
     }
 
     /**
-     * PUT /api/cart/items/{itemId}
-     * Update the quantity of an existing cart line.
-     * If quantity == 0, the line is removed.
+     * PUT /api/cart/items/by-product/{productId}
+     * Update the quantity of a cart item by productId.
+     * Frontend-friendly alternative to using itemId.
      */
-    @PutMapping("/items/{itemId}")
-    public CartView updateItem(
+    @PutMapping("/items/by-product/{productId}")
+    public CartView updateByProductId(
         @CookieValue(name = "cartId", required = false) String cartIdCookie,
-        @PathVariable Integer itemId,
+        @PathVariable Integer productId,
         @Valid @RequestBody CartUpdateRequest req,
         HttpServletResponse response
     ) {
-        // ensure cartId cookie
         String cartId = (cartIdCookie == null || cartIdCookie.isBlank())
             ? UUID.randomUUID().toString()
             : cartIdCookie;
@@ -77,21 +78,96 @@ public class CartController {
             response.addCookie(c);
         }
 
-        // update (or delete) and return the updated cart
+        return cartService.updateByProductId(cartId, productId, req.quantity());
+    }
+
+    /**
+     * DELETE /api/cart/items/by-product/{productId}
+     * Remove a cart item by productId.
+     * Frontend-friendly alternative to using itemId.
+     */
+    @DeleteMapping("/items/by-product/{productId}")
+    public CartView deleteByProductId(
+        @CookieValue(name = "cartId", required = false) String cartIdCookie,
+        @PathVariable Integer productId,
+        HttpServletResponse response
+    ) {
+        String cartId = (cartIdCookie == null || cartIdCookie.isBlank())
+            ? UUID.randomUUID().toString()
+            : cartIdCookie;
+        if (!cartId.equals(cartIdCookie)) {
+            Cookie c = new Cookie("cartId", cartId);
+            c.setPath("/");
+            c.setHttpOnly(true);
+            c.setMaxAge(7 * 24 * 60 * 60);
+            response.addCookie(c);
+        }
+
+        return cartService.deleteByProductId(cartId, productId);
+    }
+
+    /**
+     * GET /api/cart/items/by-product/{productId}
+     * Fetch the cart line for a given product (or null if it's not in the cart).
+     */
+    @GetMapping("/items/by-product/{productId}")
+    public ResponseEntity<CartItemDto> getCartItemByProductId(
+        @CookieValue(name = "cartId", required = false) String cartId,
+        @PathVariable Integer productId
+    ) {
+        if (cartId == null || cartId.isBlank()) {
+            return ResponseEntity.ok(null);
+        }
+        return cartService.getItemByProductId(cartId, productId)
+            .map(ResponseEntity::ok)
+            .orElseGet(() -> ResponseEntity.ok(null));
+    }
+
+    /**
+     * GET /api/cart/count
+     * Return the total number of items in the cart.
+     */
+    @GetMapping("/count")
+    public Map<String, Integer> getCartItemCount(
+        @CookieValue(name = "cartId", required = false) String cartId
+    ) {
+        int count = (cartId == null || cartId.isBlank()) ? 0 : cartService.getItemCount(cartId);
+        return Map.of("count", count);
+    }
+
+    /**
+     * PUT /api/cart/items/{itemId}
+     * Update the quantity of a cart item by its cart_item_id (removes if quantity = 0).
+     */
+    @PutMapping("/items/{itemId}")
+    public CartView updateItem(
+        @PathVariable Integer itemId,
+        @Valid @RequestBody CartUpdateRequest req,
+        @CookieValue(name = "cartId", required = false) String cartId,
+        HttpServletResponse response
+    ) {
+        ensureCartCookie(cartId, response);
         return cartService.updateQty(itemId, req.quantity());
     }
 
     /**
      * DELETE /api/cart/items/{itemId}
-     * Remove a cart line outright.
+     * Remove a cart line outright by its cart_item_id.
      */
     @DeleteMapping("/items/{itemId}")
     public CartView deleteItem(
-        @CookieValue(name = "cartId", required = false) String cartIdCookie,
         @PathVariable Integer itemId,
+        @CookieValue(name = "cartId", required = false) String cartId,
         HttpServletResponse response
     ) {
-        // same cookie logic
+        ensureCartCookie(cartId, response);
+        return cartService.updateQty(itemId, 0);
+    }
+
+    /**
+     * Shared helper for cookie logic
+     */
+    private void ensureCartCookie(String cartIdCookie, HttpServletResponse response) {
         String cartId = (cartIdCookie == null || cartIdCookie.isBlank())
             ? UUID.randomUUID().toString()
             : cartIdCookie;
@@ -102,8 +178,5 @@ public class CartController {
             c.setMaxAge(7 * 24 * 60 * 60);
             response.addCookie(c);
         }
-
-        // deleting is just setting qty to 0
-        return cartService.updateQty(itemId, 0);
     }
 }

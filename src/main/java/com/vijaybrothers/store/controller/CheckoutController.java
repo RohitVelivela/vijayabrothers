@@ -2,16 +2,15 @@ package com.vijaybrothers.store.controller;
 
 import com.vijaybrothers.store.dto.checkout.GuestCheckoutRequest;
 import com.vijaybrothers.store.dto.checkout.GuestCheckoutResponse;
-import com.vijaybrothers.store.dto.GuestInfoDto;
 import com.vijaybrothers.store.service.CheckoutService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Map;
-
+/**
+ * Controller for guest checkout operations.
+ */
 @RestController
 @RequestMapping("/api/checkout")
 @RequiredArgsConstructor
@@ -21,29 +20,28 @@ public class CheckoutController {
 
     /**
      * POST /api/checkout/guest
-     * Place an order for a guest (no login required).
+     * Create guest details and link cart items.
      */
     @PostMapping("/guest")
-    @ResponseStatus(HttpStatus.CREATED)
-    public GuestCheckoutResponse guestCheckout(
-        @Valid @RequestBody GuestCheckoutRequest req
+    public ResponseEntity<GuestCheckoutResponse> createGuest(
+            @CookieValue(name = "cartId", required = false) Integer cartId,
+            @Valid @RequestBody GuestCheckoutRequest request
     ) {
-        return checkoutService.guestCheckout(req);
+        if (cartId == null) {
+            throw new IllegalArgumentException("Missing cartId cookie");
+        }
+        
+        return ResponseEntity.ok(checkoutService.createGuest(cartId, request));
     }
 
     /**
      * GET /api/checkout/guest/{guestId}
-     * Retrieve stored guest details
+     * Fetch saved guest details.
      */
     @GetMapping("/guest/{guestId}")
-    public ResponseEntity<?> getGuestInfo(@PathVariable Integer guestId) {
-        try {
-            GuestInfoDto dto = checkoutService.getGuestInfo(guestId);
-            return ResponseEntity.ok(dto);
-        } catch (IllegalArgumentException ex) {
-            return ResponseEntity
-                .status(404)
-                .body(Map.of("error", ex.getMessage()));
-        }
+    public ResponseEntity<GuestCheckoutResponse> getGuest(
+            @PathVariable Integer guestId
+    ) {
+        return ResponseEntity.ok(checkoutService.getGuest(guestId));
     }
 }

@@ -23,6 +23,9 @@ public class CartItem {
 
     private Integer quantity;
 
+    @Column(name = "guest_id")
+    private Integer guestId;
+
     @Column(name = "added_at")
     private Instant addedAt;
 }

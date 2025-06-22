@@ -82,4 +82,24 @@ public class AdminCategoryService {
         // 5. Save all changes
         productRepo.saveAll(products);
     }
+
+    /**
+     * Deletes a category
+     * 
+     * @param categoryId The ID of the category to delete
+     * @throws IllegalArgumentException if category not found
+     * @throws IllegalStateException if category has linked products
+     */
+    @Transactional
+    public void deleteCategory(Integer categoryId) {
+        Category category = categoryRepo.findById(categoryId)
+            .orElseThrow(() -> new IllegalArgumentException("Category not found"));
+
+        // Check if category has linked products
+        if (productRepo.existsByCategory_CategoryId(categoryId)) {
+            throw new IllegalStateException("Cannot delete category with products");
+        }
+
+        categoryRepo.delete(category);
+    }
 }

@@ -1,5 +1,6 @@
 package com.vijaybrothers.store.service;
 
+import com.vijaybrothers.store.dto.CartItemDto;
 import com.vijaybrothers.store.dto.cart.CartItemRequest;
 import com.vijaybrothers.store.dto.cart.CartView;
 import com.vijaybrothers.store.model.Cart;
@@ -16,6 +17,7 @@ import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -101,5 +103,54 @@ public class CartService {
             item.setQuantity(qty);
         }
         return buildView(item.getCart().getCartId());
+    }
+
+    /**
+     * Update quantity of a cart item by productId. If qty <= 0, removes the item.
+     * Returns updated cart view.
+     */
+    @Transactional
+    public CartView updateByProductId(String cartId, Integer productId, Integer quantity) {
+        CartItem item = itemRepo.findByCart_CartIdAndProduct_ProductId(cartId, productId)
+            .orElseThrow(() -> new IllegalArgumentException("No item found for product in cart"));
+        
+        if (quantity == 0) {
+            itemRepo.delete(item);
+        } else {
+            item.setQuantity(quantity);
+            itemRepo.save(item);
+        }
+        return buildView(cartId);
+    }
+
+    /**
+     * Delete a cart item by productId.
+     * Returns updated cart view.
+     */
+    @Transactional
+    public CartView deleteByProductId(String cartId, Integer productId) {
+        CartItem item = itemRepo.findByCart_CartIdAndProduct_ProductId(cartId, productId)
+            .orElseThrow(() -> new IllegalArgumentException("No cart item found for product"));
+        itemRepo.delete(item);
+        return buildView(cartId);
+    }
+
+    /**
+     * Get cart item by productId.
+     * Returns Optional<CartItemDto> or empty if not found.
+     */
+    @Transactional(readOnly = true)
+    public Optional<CartItemDto> getItemByProductId(String cartId, Integer productId) {
+        return itemRepo.findByCart_CartIdAndProduct_ProductId(cartId, productId)
+            .map(CartItemDto::from);
+    }
+
+    /**
+     * Get total count of items in cart.
+     * Returns the sum of all quantities.
+     */
+    @Transactional(readOnly = true)
+    public int getItemCount(String cartId) {
+        return itemRepo.countByCart_CartId(cartId);
     }
 }

@@ -42,6 +42,13 @@ public class Product {
     @Column(name = "is_in_stock")    private Boolean inStock;    @Column(name = "youtube_link")   private String youtubeLink;
     @Column(name = "main_image_url") private String mainImageUrl;
 
+    /* ─── Product attributes ─── */
+    @Column
+    private String color;
+    
+    @Column
+    private String fabric;
+
     /* ─── Audit ─── */
     @Column(name = "created_at",  updatable = false) private Instant createdAt;
     @Column(name = "created_by",  updatable = false) private String  createdBy;

@@ -25,8 +25,8 @@ import java.util.Arrays;
 @EnableMethodSecurity
 public class SecurityConfig {
 
-
-    @Autowired private JwtAuthenticationFilter jwtFilter;
+    @Autowired
+    private JwtAuthenticationFilter jwtFilter;
 
     @Bean
     public AuthenticationManager authManager(AuthenticationConfiguration authConfig) throws Exception {
@@ -57,26 +57,38 @@ public class SecurityConfig {
             .csrf(csrf -> csrf.disable())
             .sessionManagement(session -> session
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-            )            .authorizeHttpRequests(auth -> auth
+            )
+            .authorizeHttpRequests(auth -> auth
                 // Public endpoints
                 .requestMatchers("/api/admin/signup", "/api/admin/login").permitAll()
                 .requestMatchers("/error").permitAll()
                 .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/products/**", "/api/categories/**").permitAll()
+                .requestMatchers(HttpMethod.PUT, "/api/categories/**").permitAll()
                 .requestMatchers("/api/cart/**").permitAll()
-                .requestMatchers("/api/checkout/guest").permitAll()
+                .requestMatchers("/api/checkout/guest/**").permitAll()
                 .requestMatchers("/api/payments/webhook").permitAll()
-                
-                // Admin product management
-                .requestMatchers(HttpMethod.POST, "/api/admin/products").hasRole("ADMIN")
-                .requestMatchers(HttpMethod.GET, "/api/admin/products").hasRole("ADMIN")
-                .requestMatchers(HttpMethod.PUT, "/api/admin/products/**").hasRole("ADMIN")
-                .requestMatchers(HttpMethod.DELETE, "/api/admin/products/**").hasRole("ADMIN")
-                
-                // Admin order management
+
+                // Admin product management - now public (no auth required)
+                .requestMatchers(HttpMethod.POST, "/api/admin/products").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/admin/products").permitAll()
+                .requestMatchers(HttpMethod.PUT, "/api/admin/products/**").permitAll()
+                .requestMatchers(HttpMethod.DELETE, "/api/admin/products/**").permitAll()
+
+                // Admin category management - now public (no auth required)
+                .requestMatchers(HttpMethod.POST, "/api/admin/categories").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/admin/categories/**").permitAll()
+                .requestMatchers(HttpMethod.PUT, "/api/admin/categories/**").permitAll()
+                .requestMatchers(HttpMethod.DELETE, "/api/admin/categories/**").permitAll()
+                .requestMatchers(HttpMethod.POST, "/api/admin/categories/*/products").permitAll()
+
+                // Admin order management (still protected)
                 .requestMatchers(HttpMethod.GET, "/api/admin/orders/**").hasRole("ADMIN")
-                
-                // Default: require authentication for any other endpoint
+
+                // Admin profile management (still protected)
+                .requestMatchers(HttpMethod.PUT, "/api/admin/profile").hasRole("ADMIN")
+
+                // All other endpoints
                 .anyRequest().authenticated()
             )
             .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);

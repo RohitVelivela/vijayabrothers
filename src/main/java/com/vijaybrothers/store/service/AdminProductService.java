@@ -1,3 +1,4 @@
+// src/main/java/com/vijaybrothers/store/service/AdminProductService.java
 package com.vijaybrothers.store.service;
 
 import com.vijaybrothers.store.dto.ProductCreateRequest;
@@ -33,28 +34,28 @@ public class AdminProductService {
      */
     @Transactional
     public void createProduct(ProductCreateRequest req) {
-        Category cat = categoryRepo.findById(req.categoryId())
+        Category cat = categoryRepo.findById(req.getCategoryId())
             .orElseThrow(() -> new IllegalArgumentException("Category not found"));
 
         Product p = new Product();
-        p.setProductCode(req.productCode());
-        p.setName(req.name());
-        p.setDescription(req.description());
-        p.setPrice(req.price());
+        p.setProductCode(req.getProductCode());
+        p.setName(req.getName());
+        p.setDescription(req.getDescription());
+        p.setPrice(req.getPrice());
         p.setCategory(cat);
-        p.setStockQuantity(req.stockQuantity());
-        p.setInStock(req.inStock());
-        p.setYoutubeLink(req.youtubeLink());
-        p.setMainImageUrl(req.mainImageUrl());
+        p.setStockQuantity(req.getStockQuantity());
+        p.setInStock(req.getInStock());
+        p.setYoutubeLink(req.getYoutubeLink());
+        p.setMainImageUrl(req.getMainImageUrl());
         p.setCreatedAt(Instant.now());
         p.setUpdatedAt(Instant.now());
-        // createdBy/updatedBy are set by your auditing filter if you have one
 
         productRepo.save(p);
     }
 
     /**
-     * Get list of products that are under the low-stock threshold
+     * Get list of products that are under the low-stock threshold.
+     * Called by GET /api/admin/products/low-stock
      */
     @Transactional(readOnly = true)
     public List<ProductDto> lowStock() {
@@ -70,7 +71,8 @@ public class AdminProductService {
      */
     @Transactional(readOnly = true)
     public List<ProductSummaryDto> listProducts() {
-        return productRepo.findAll().stream()            .map(p -> new ProductSummaryDto(
+        return productRepo.findAll().stream()
+            .map(p -> new ProductSummaryDto(
                 p.getProductId(),
                 p.getProductCode(),
                 p.getName(),
@@ -92,18 +94,18 @@ public class AdminProductService {
         Product p = productRepo.findById(productId)
             .orElseThrow(() -> new IllegalArgumentException("Product not found"));
 
-        Category cat = categoryRepo.findById(req.categoryId())
+        Category cat = categoryRepo.findById(req.getCategoryId())
             .orElseThrow(() -> new IllegalArgumentException("Category not found"));
 
-        p.setProductCode(req.productCode());
-        p.setName(req.name());
-        p.setDescription(req.description());
-        p.setPrice(req.price());
+        p.setProductCode(req.getProductCode());
+        p.setName(req.getName());
+        p.setDescription(req.getDescription());
+        p.setPrice(req.getPrice());
         p.setCategory(cat);
-        p.setStockQuantity(req.stockQuantity());
-        p.setInStock(req.inStock());
-        p.setYoutubeLink(req.youtubeLink());
-        p.setMainImageUrl(req.mainImageUrl());
+        p.setStockQuantity(req.getStockQuantity());
+        p.setInStock(req.getInStock());
+        p.setYoutubeLink(req.getYoutubeLink());
+        p.setMainImageUrl(req.getMainImageUrl());
         p.setUpdatedAt(Instant.now());
 
         productRepo.save(p);

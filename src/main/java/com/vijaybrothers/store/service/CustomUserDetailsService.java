@@ -14,12 +14,12 @@ public class CustomUserDetailsService implements UserDetailsService {
     @Autowired private AdminRepository adminRepo;
 
     @Override
-    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-        Admin admin = adminRepo.findByUserEmail(email)
-            .orElseThrow(() -> new UsernameNotFoundException("Admin not found with email: " + email));
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        Admin admin = adminRepo.findByUserName(username)
+            .orElseThrow(() -> new UsernameNotFoundException("Admin not found with username: " + username));
 
         return new org.springframework.security.core.userdetails.User(
-            admin.getUserEmail(),
+            admin.getUserName(),
             admin.getPassword(),
             Collections.singletonList(new SimpleGrantedAuthority("ROLE_ADMIN"))
         );

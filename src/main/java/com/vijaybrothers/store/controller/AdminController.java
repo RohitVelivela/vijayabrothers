@@ -29,20 +29,6 @@ public class AdminController {
     @Autowired
     private AdminService adminService;
 
-    @Operation(
-        summary = "Create a new admin account",
-        responses = {
-            @ApiResponse(responseCode = "201", description = "Admin account created successfully"),
-            @ApiResponse(responseCode = "400", description = "Invalid input")
-        }
-    )
-    @PostMapping("/signup")
-    public ResponseEntity<AdminSignupResponse> signup(
-            @Valid @RequestBody AdminSignupRequest request
-    ) {
-        AdminSignupResponse resp = adminService.signup(request);
-        return ResponseEntity.status(HttpStatus.CREATED).body(resp);
-    }
 
     @Operation(
         summary = "Login to admin account",

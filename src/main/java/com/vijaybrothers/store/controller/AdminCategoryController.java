@@ -65,4 +65,27 @@ public class AdminCategoryController {
                 .body(Map.of("error", error));
         }
     }
+
+    /**
+     * Deletes a category
+     * DELETE /api/admin/categories/{id}
+     * 
+     * @param id The ID of the category to delete
+     * @return 204 NO CONTENT on success, or error response
+     */
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> deleteCategory(@PathVariable Integer id) {
+        try {
+            service.deleteCategory(id);
+            return ResponseEntity.noContent().build();
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity
+                .status(HttpStatus.NOT_FOUND)
+                .body(Map.of("error", e.getMessage()));
+        } catch (IllegalStateException e) {
+            return ResponseEntity
+                .status(HttpStatus.CONFLICT)
+                .body(Map.of("error", e.getMessage()));
+        }
+    }
 }

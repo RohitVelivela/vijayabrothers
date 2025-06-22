@@ -2,18 +2,23 @@ package com.vijaybrothers.store.controller;
 
 import com.vijaybrothers.store.dto.ProductListItem;
 import com.vijaybrothers.store.service.ProductQueryService;
+import com.vijaybrothers.store.repository.ProductRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import lombok.RequiredArgsConstructor;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/products")
 @Tag(name = "Products", description = "Public product listing endpoints")
+@RequiredArgsConstructor
 public class ProductPublicController {
 
     private final ProductQueryService svc;
-    public ProductPublicController(ProductQueryService svc) { this.svc = svc; }
+    private final ProductRepository productRepo;
 
     /**
      * GET /api/products
@@ -23,15 +28,19 @@ public class ProductPublicController {
      *   size        default 20
      *   categoryId  filter by category
      *   q           full-text search in product name
+     *   color       filter by color
+     *   fabric      filter by fabric
+     *   inStock     filter by stock status
      */
     @GetMapping
     @Operation(summary = "List products with optional filtering and pagination")
-    public Page<ProductListItem> list(
-            @RequestParam(defaultValue = "0")  int page,
-            @RequestParam(defaultValue = "20") int size,
-            @RequestParam(required = false)    Integer categoryId,
-            @RequestParam(required = false, value = "q") String search
+    public List<ProductListItem> listFiltered(
+            @RequestParam(required = false) Integer categoryId,
+            @RequestParam(required = false) String color,
+            @RequestParam(required = false) String fabric,
+            @RequestParam(required = false) Boolean inStock
     ) {
-        return svc.list(categoryId, search, page, size);
+        var products = productRepo.filterProducts(categoryId, color, fabric, inStock);
+        return products.stream().map(ProductListItem::from).toList();
     }
 }

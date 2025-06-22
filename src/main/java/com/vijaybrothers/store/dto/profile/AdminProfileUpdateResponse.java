@@ -11,9 +11,18 @@ public class AdminProfileUpdateResponse {
     @JsonProperty("user_image")
     private String userImage;
 
+    @JsonProperty("message")
+    private String message;
+
     public AdminProfileUpdateResponse(String token, String userImage) {
         this.token = token;
         this.userImage = userImage;
+    }
+
+    public AdminProfileUpdateResponse(String token, String userImage, String message) {
+        this.token = token;
+        this.userImage = userImage;
+        this.message = message;
     }
 
     public String getToken() {
@@ -22,5 +31,9 @@ public class AdminProfileUpdateResponse {
 
     public String getUserImage() {
         return userImage;
+    }
+
+    public String getMessage() {
+        return message;
     }
 }

@@ -4,7 +4,10 @@ import com.vijaybrothers.store.dto.OrderCreateRequest;
 import com.vijaybrothers.store.dto.OrderSummaryDto;
 import com.vijaybrothers.store.dto.PlaceOrderResponse;
 import com.vijaybrothers.store.dto.OrderTrackDto;
+import com.vijaybrothers.store.dto.checkout.GuestCheckoutRequest;
+import com.vijaybrothers.store.dto.checkout.OrderCheckoutResponse;
 import com.vijaybrothers.store.service.OrderService;
+import com.vijaybrothers.store.service.CheckoutService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
@@ -21,6 +24,7 @@ import java.util.Map;
 public class OrderController {
 
     private final OrderService svc;
+    private final CheckoutService checkoutService;
 
     @PostMapping
     public ResponseEntity<PlaceOrderResponse> placeOrder(@Valid @RequestBody OrderCreateRequest req) {
@@ -30,6 +34,26 @@ public class OrderController {
             
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().build();
+        }
+    }
+
+    /**
+     * POST /api/orders/guest-checkout
+     * Place an order for a guest (no login required).
+     */
+    @PostMapping("/guest-checkout")
+    public ResponseEntity<OrderCheckoutResponse> guestCheckout(
+            @CookieValue(name = "cartId", required = false) String cartId,
+            @Valid @RequestBody GuestCheckoutRequest req) {
+        try {
+            if (cartId == null || cartId.isBlank()) {
+                throw new IllegalArgumentException("No cartId cookie present");
+            }
+            OrderCheckoutResponse response = checkoutService.guestCheckout(cartId, req);
+            return ResponseEntity.ok(response);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest()
+                .body(null); // You might want to return an error response DTO here
         }
     }
 

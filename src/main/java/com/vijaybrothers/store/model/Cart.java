@@ -11,7 +11,9 @@ import java.util.List;
 @Getter @Setter @NoArgsConstructor @AllArgsConstructor @Builder
 public class Cart {
     @Id
-    private String cartId;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "cart_id")
+    private Integer cartId;
 
     @Column(name = "created_at", updatable = false)
     private Instant createdAt;

@@ -78,7 +78,9 @@ public class ProductQueryService {
                 p.getPrice(),
                 p.getInStock(),
                 p.getYoutubeLink(),
-                p.getCategory() != null ? p.getCategory().getName() : null
+                p.getCategory() != null ? p.getCategory().getName() : null,
+                p.getColor(),
+                p.getFabric()
         );
     }
 }
