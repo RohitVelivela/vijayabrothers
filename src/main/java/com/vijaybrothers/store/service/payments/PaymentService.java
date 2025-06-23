@@ -17,7 +17,7 @@ import java.util.Map;
 
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
 
-@Service
+@Service("razorpayPaymentService")
 public class PaymentService {
     private final RazorpayClient razorpayClient;
     private final PaymentRepository repo;

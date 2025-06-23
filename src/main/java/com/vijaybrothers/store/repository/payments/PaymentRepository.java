@@ -1,4 +1,5 @@
 package com.vijaybrothers.store.repository.payments;
+import com.vijaybrothers.store.repository.payments.PaymentRepository;
 
 import com.vijaybrothers.store.model.payments.Payment;
 import org.springframework.data.jpa.repository.JpaRepository;
