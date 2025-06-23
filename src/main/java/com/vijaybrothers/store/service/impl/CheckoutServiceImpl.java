@@ -68,6 +68,18 @@ public class CheckoutServiceImpl implements CheckoutService {
             throw new IllegalArgumentException("Cart is empty");
         }
 
+        // First create or find the guest checkout details
+        GuestCheckoutDetails guestDetails = new GuestCheckoutDetails();
+        guestDetails.setName(req.name());
+        guestDetails.setEmail(req.email());
+        guestDetails.setPhone(req.phone());
+        guestDetails.setAddress(req.address());
+        guestDetails.setCity(req.city());
+        guestDetails.setState(req.state());
+        guestDetails.setPostalCode(req.postalCode());
+        guestDetails.setCreatedAt(OffsetDateTime.now());
+        guestDetails = guestRepo.save(guestDetails);
+
         String orderNumber = generateOrderNumber();
         String fullAddress = String.format(
             "%s, %s, %s %s",
@@ -76,6 +88,8 @@ public class CheckoutServiceImpl implements CheckoutService {
 
         Order order = Order.builder()
             .orderNumber(orderNumber)
+            .guestCheckoutDetails(guestDetails)
+            .customerEmail(req.email())
             .shippingName(req.name())
             .shippingEmail(req.email())
             .shippingPhone(req.phone())

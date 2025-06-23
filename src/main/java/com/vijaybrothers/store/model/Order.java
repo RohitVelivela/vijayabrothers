@@ -22,7 +22,9 @@ public class Order {
     @Column(nullable = false, unique = true)
     private String orderNumber;
 
-    private Integer guestId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "guest_id", foreignKey = @ForeignKey(name = "guest_id_fk"))
+    private GuestCheckoutDetails guestCheckoutDetails;
 
     private BigDecimal totalAmount;
 
@@ -32,6 +34,9 @@ public class Order {
     @Enumerated(EnumType.STRING)
     private PaymentStatus paymentStatus;
 
+    @Column(nullable = false)
+    private String customerEmail;
+    
     private String shippingName;
     private String shippingEmail;
     private String shippingPhone;
