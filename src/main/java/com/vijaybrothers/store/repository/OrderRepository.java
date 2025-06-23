@@ -1,25 +1,22 @@
 package com.vijaybrothers.store.repository;
 
 import com.vijaybrothers.store.model.Order;
+import org.springframework.data.jpa.repository.JpaRepository;
+
 import com.vijaybrothers.store.model.OrderStatus;
-import org.springframework.data.domain.*;
-import org.springframework.data.jpa.repository.*;
-import java.util.Optional;
-import java.math.BigDecimal;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
-public interface OrderRepository extends JpaRepository<Order,Integer> {    
-    /**
-     * Find orders by status with pagination
-     */
-    Page<Order> findByOrderStatus(OrderStatus status, Pageable pageable);
-    Optional<Order> findByOrderNumber(String orderNumber);
+public interface OrderRepository extends JpaRepository<Order, Long> {
+    java.util.Optional<Order> findByOrderNumber(String orderNumber);
+
+    Page<Order> findByOrderStatus(OrderStatus orderStatus, Pageable pageable);
+
+    @Query("SELECT SUM(o.totalAmount) FROM Order o")
+    java.math.BigDecimal sumTotalAmount();
     
-    /**
-     * Find orders by guest ID sorted by creation date descending
-     */
-    Page<Order> findByGuestIdOrderByCreatedAtDesc(String guestId, Pageable pageable);
-
-    /** Sum of all orders' totalAmount */
-    @Query("SELECT COALESCE(SUM(o.totalAmount),0) FROM Order o")
-    BigDecimal sumTotalAmount();
+    Page<Order> findByGuestId(Integer guestId, Pageable pageable);
 }

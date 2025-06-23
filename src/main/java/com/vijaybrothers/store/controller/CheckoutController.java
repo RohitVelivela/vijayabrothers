@@ -7,6 +7,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import java.util.Map;
 
 /**
  * Controller for guest checkout operations.
@@ -23,15 +24,11 @@ public class CheckoutController {
      * Create guest details and link cart items.
      */
     @PostMapping("/guest")
-    public ResponseEntity<GuestCheckoutResponse> createGuest(
-            @CookieValue(name = "cartId", required = false) Integer cartId,
+    public ResponseEntity<?> createGuest(
             @Valid @RequestBody GuestCheckoutRequest request
     ) {
-        if (cartId == null) {
-            throw new IllegalArgumentException("Missing cartId cookie");
-        }
-        
-        return ResponseEntity.ok(checkoutService.createGuest(cartId, request));
+        var response = checkoutService.createGuest(request.cartId(), request);
+        return ResponseEntity.ok(Map.of("message", "guest added successfully"));
     }
 
     /**

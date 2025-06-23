@@ -30,13 +30,14 @@ public class AdminOrderService {
         return (orderStatus != null 
             ? orderRepo.findByOrderStatus(orderStatus, pageable)
             : orderRepo.findAll(pageable)
-        ).map(o -> new OrderListItem(            o.getOrderId(),
+        ).map(o -> new OrderListItem(
+            o.getOrderId().intValue(),
             o.getOrderNumber(),
             o.getShippingName(),
             o.getTotalAmount(),
             o.getPaymentStatus().name(),
             o.getOrderStatus().name(),
-            o.getCreatedAt()));
+            o.getCreatedAt().toInstant()));
     }
 
     /**
@@ -47,16 +48,16 @@ public class AdminOrderService {
      */
     @Transactional(readOnly = true)
     public OrderDetailDto getOrderDetail(Integer orderId) {
-        Order order = orderRepo.findById(orderId)
+        Order order = orderRepo.findById(orderId.longValue())
             .orElseThrow(() -> new IllegalArgumentException("Order not found"));
 
         return new OrderDetailDto(
-            order.getOrderId(),
+            order.getOrderId().intValue(),
             order.getOrderNumber(),
             order.getTotalAmount(),
             order.getOrderStatus().name(),
             order.getPaymentStatus().name(),
-            order.getCreatedAt(),
+            order.getCreatedAt().toInstant(),
             order.getShippingName(),
             order.getShippingEmail(),
             order.getShippingPhone(),
@@ -89,7 +90,7 @@ public class AdminOrderService {
     @Transactional
     public void updateOrderStatus(Integer orderId, OrderStatusUpdateRequest req) {
         // 1. Find and validate order exists
-        Order order = orderRepo.findById(orderId)
+        Order order = orderRepo.findById(orderId.longValue())
             .orElseThrow(() -> new IllegalArgumentException("Order not found"));
 
         // 2. Capture old status for logging
@@ -179,13 +180,13 @@ public class AdminOrderService {
      */
     private OrderListItem toListItem(Order order) {
         return new OrderListItem(
-            order.getOrderId(),
+            order.getOrderId().intValue(),
             order.getOrderNumber(),
             order.getShippingName(),
             order.getTotalAmount(),
             order.getPaymentStatus().name(),
             order.getOrderStatus().name(),
-            order.getCreatedAt()
+            order.getCreatedAt().toInstant()
         );
     }
 }

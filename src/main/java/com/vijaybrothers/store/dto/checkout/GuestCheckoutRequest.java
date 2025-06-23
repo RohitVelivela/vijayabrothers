@@ -2,12 +2,16 @@ package com.vijaybrothers.store.dto.checkout;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 
 /**
  * DTO for capturing guest checkout details.
  */
 public record GuestCheckoutRequest(
+    @NotNull(message = "Cart ID is required")
+    Integer cartId,
+
     @NotBlank(message = "Name is required")
     String name,
     

@@ -63,7 +63,7 @@ public class PaymentService {
         }
 
         // Find and validate order
-        Order order = orderRepo.findById(req.orderId())
+        Order order = orderRepo.findById(req.orderId().longValue())
             .orElseThrow(() -> new IllegalArgumentException("Order not found"));
 
         // Validate amount matches order
@@ -92,11 +92,11 @@ public class PaymentService {
 
     @Transactional(readOnly = true)
     public PaymentDetailDto getPaymentByOrder(Integer orderId) {
-        Payment payment = paymentRepo.findByOrderOrderId(orderId)
+        Payment payment = paymentRepo.findByOrderOrderId(orderId.longValue())
             .orElseThrow(() -> new IllegalArgumentException("Payment not found"));
         return new PaymentDetailDto(
             payment.getPaymentId().longValue(),
-            payment.getOrder().getOrderId().longValue(),
+            payment.getOrder().getOrderId(),
             payment.getAmount(),
             payment.getMethod(),
             payment.getTransactionId(),

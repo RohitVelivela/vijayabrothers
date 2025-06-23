@@ -1,31 +1,17 @@
 package com.vijaybrothers.store.dto;
 
-import jakarta.validation.Valid;
 import jakarta.validation.constraints.*;
-import lombok.Data;
-
+import java.math.BigDecimal;
 import java.util.List;
 
-@Data
-public class OrderCreateRequest {
-    @NotBlank
-    private String guestId;
-
-    @Valid
-    @NotEmpty
-    private List<OrderItemDto> items;
-
-    // Shipping Information
-    @NotBlank
-    private String shippingName;
-
-    @NotBlank
-    @Email
-    private String shippingEmail;
-
-    @NotBlank
-    private String shippingPhone;
-
-    @NotBlank
-    private String shippingAddress;
-}
+public record OrderCreateRequest(
+    @NotNull(message = "guestId is required") Integer guestId,
+    @NotEmpty(message = "items must not be empty") List<OrderItemRequest> items,
+    @NotBlank(message = "shippingName is required") String shippingName,
+    @Email  (message = "shippingEmail must be valid") @NotBlank(message = "shippingEmail is required") String shippingEmail,
+    @NotBlank(message = "shippingPhone is required") String shippingPhone,
+    @NotBlank(message = "shippingAddress is required") String shippingAddress,
+    @NotBlank(message = "shippingCity is required") String shippingCity,
+    @NotBlank(message = "shippingPostalCode is required") String shippingPostalCode,
+    @NotBlank(message = "shippingState is required") String shippingState
+) {}

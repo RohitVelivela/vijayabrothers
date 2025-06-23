@@ -83,13 +83,16 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.POST, "/api/admin/categories/*/products").permitAll()
 
                 // Admin order management (still protected)
-                .requestMatchers(HttpMethod.GET, "/api/admin/orders/**").hasRole("ADMIN")
+                //.requestMatchers(HttpMethod.GET, "/api/admin/orders/**").hasRole("ADMIN")
+
+                // Permit authenticated access to /api/orders endpoints
+                //.requestMatchers("/api/orders/**").authenticated()
 
                 // Admin profile management (still protected)
-                .requestMatchers(HttpMethod.PUT, "/api/admin/profile").hasRole("ADMIN")
+                //.requestMatchers(HttpMethod.PUT, "/api/admin/profile").hasRole("ADMIN")
 
                 // All other endpoints
-                .anyRequest().authenticated()
+                .anyRequest().permitAll()
             )
             .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
 

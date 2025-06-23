@@ -21,24 +21,20 @@ import java.util.UUID;
 public class CartController {
     private final CartService cartService;
 
-    @PostMapping("/items")    public ResponseEntity<CartView> addToCart(
+    @PostMapping("/items")
+    public ResponseEntity<CartView> addToCart(
         @CookieValue(name = "cartId", required = false) String cartId,
         @Valid @RequestBody CartItemRequest request
     ) {
-        CartView cartView = cartService.addItem(cartId, request);
+        CartView cartView = cartService.addItem(Integer.parseInt(cartId), request);
         return ResponseEntity.ok(cartView);
     }
 
-    /**
-     * GET /api/cart
-     * Return the full cart for the given cartId (cookie), or an empty one if none.
-     */
     @GetMapping
     public CartView viewCart(
         @CookieValue(name = "cartId", required = false) String cartIdCookie,
         HttpServletResponse response
     ) {
-        // If no cookie, create a new cartId and set it
         String cartId = (cartIdCookie == null || cartIdCookie.isBlank())
             ? UUID.randomUUID().toString()
             : cartIdCookie;
@@ -47,19 +43,13 @@ public class CartController {
             Cookie c = new Cookie("cartId", cartId);
             c.setPath("/");
             c.setHttpOnly(true);
-            c.setMaxAge(7 * 24 * 60 * 60); // 1 week
+            c.setMaxAge(7 * 24 * 60 * 60);
             response.addCookie(c);
         }
 
-        // Build and return the cart snapshot (empty if no lines)
-        return cartService.buildView(cartId);
+        return cartService.buildView(Integer.parseInt(cartId));
     }
 
-    /**
-     * PUT /api/cart/items/by-product/{productId}
-     * Update the quantity of a cart item by productId.
-     * Frontend-friendly alternative to using itemId.
-     */
     @PutMapping("/items/by-product/{productId}")
     public CartView updateByProductId(
         @CookieValue(name = "cartId", required = false) String cartIdCookie,
@@ -78,14 +68,9 @@ public class CartController {
             response.addCookie(c);
         }
 
-        return cartService.updateByProductId(cartId, productId, req.quantity());
+        return cartService.updateByProductId(Integer.parseInt(cartId), productId, req.quantity());
     }
 
-    /**
-     * DELETE /api/cart/items/by-product/{productId}
-     * Remove a cart item by productId.
-     * Frontend-friendly alternative to using itemId.
-     */
     @DeleteMapping("/items/by-product/{productId}")
     public CartView deleteByProductId(
         @CookieValue(name = "cartId", required = false) String cartIdCookie,
@@ -103,13 +88,9 @@ public class CartController {
             response.addCookie(c);
         }
 
-        return cartService.deleteByProductId(cartId, productId);
+        return cartService.deleteByProductId(Integer.parseInt(cartId), productId);
     }
 
-    /**
-     * GET /api/cart/items/by-product/{productId}
-     * Fetch the cart line for a given product (or null if it's not in the cart).
-     */
     @GetMapping("/items/by-product/{productId}")
     public ResponseEntity<CartItemDto> getCartItemByProductId(
         @CookieValue(name = "cartId", required = false) String cartId,
@@ -118,27 +99,19 @@ public class CartController {
         if (cartId == null || cartId.isBlank()) {
             return ResponseEntity.ok(null);
         }
-        return cartService.getItemByProductId(cartId, productId)
+        return cartService.getItemByProductId(Integer.parseInt(cartId), productId)
             .map(ResponseEntity::ok)
             .orElseGet(() -> ResponseEntity.ok(null));
     }
 
-    /**
-     * GET /api/cart/count
-     * Return the total number of items in the cart.
-     */
     @GetMapping("/count")
     public Map<String, Integer> getCartItemCount(
         @CookieValue(name = "cartId", required = false) String cartId
     ) {
-        int count = (cartId == null || cartId.isBlank()) ? 0 : cartService.getItemCount(cartId);
+        int count = (cartId == null || cartId.isBlank()) ? 0 : cartService.getItemCount(Integer.parseInt(cartId));
         return Map.of("count", count);
     }
 
-    /**
-     * PUT /api/cart/items/{itemId}
-     * Update the quantity of a cart item by its cart_item_id (removes if quantity = 0).
-     */
     @PutMapping("/items/{itemId}")
     public CartView updateItem(
         @PathVariable Integer itemId,
@@ -150,10 +123,6 @@ public class CartController {
         return cartService.updateQty(itemId, req.quantity());
     }
 
-    /**
-     * DELETE /api/cart/items/{itemId}
-     * Remove a cart line outright by its cart_item_id.
-     */
     @DeleteMapping("/items/{itemId}")
     public CartView deleteItem(
         @PathVariable Integer itemId,
@@ -164,9 +133,6 @@ public class CartController {
         return cartService.updateQty(itemId, 0);
     }
 
-    /**
-     * Shared helper for cookie logic
-     */
     private void ensureCartCookie(String cartIdCookie, HttpServletResponse response) {
         String cartId = (cartIdCookie == null || cartIdCookie.isBlank())
             ? UUID.randomUUID().toString()

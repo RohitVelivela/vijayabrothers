@@ -1,3 +1,4 @@
+// src/main/java/com/vijaybrothers/store/service/CartService.java
 package com.vijaybrothers.store.service;
 
 import com.vijaybrothers.store.dto.CartItemDto;
@@ -18,64 +19,76 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
 public class CartService {
 
-    private final CartRepository cartRepo;
+    private final CartRepository     cartRepo;
     private final CartItemRepository itemRepo;
-    private final ProductRepository productRepo;
+    private final ProductRepository  productRepo;
 
-    /** Ensure a Cart exists for this ID (or create a new one). */
+    /**
+     * Lazily create a cart if none exists.
+     */
     @Transactional
-    public Cart getOrCreateCart(String cartId) {
-        return cartRepo.findById(cartId)
-            .orElseGet(() -> cartRepo.save(
-                Cart.builder()
-                    .cartId(cartId)
-                    .createdAt(Instant.now())
-                    .build()));
+    public Cart getOrCreateCart(Integer cartId) {
+        if (cartId != null) {
+            return cartRepo.findById(cartId)
+                .orElseGet(() -> {
+                    Cart c = new Cart();
+                    c.setCreatedAt(Instant.now());
+                    return cartRepo.save(c);
+                });
+        } else {
+            Cart c = new Cart();
+            c.setCreatedAt(Instant.now());
+            return cartRepo.save(c);
+        }
     }
 
-    /** Add a line to the cart, then return the updated view. */
+    /**
+     * Add a product (or increment) to the cart.
+     */
     @Transactional
-    public CartView addItem(String rawCartId, CartItemRequest req) {
-        // 1) Create cart if needed
-        String cartId = (rawCartId == null || rawCartId.isBlank())
-            ? UUID.randomUUID().toString()
-            : rawCartId;
-        Cart cart = getOrCreateCart(cartId);
+    public CartView addItem(Integer rawCartId, CartItemRequest req) {
+        Cart cart = getOrCreateCart(rawCartId);
+        Product product = productRepo.findById(req.productId())
+            .orElseThrow(() -> new IllegalArgumentException(
+                "Product not found: " + req.productId()));
 
-        // 2) Load product
-        Product p = productRepo.findById(req.productId())
-            .orElseThrow(() -> new IllegalArgumentException("Product not found"));
+        CartItem item = itemRepo
+            .findByCart_CartIdAndProduct_ProductId(
+                cart.getCartId(), product.getProductId()
+            )
+            .orElseGet(() -> {
+                CartItem ci = new CartItem();
+                ci.setCart(cart);
+                ci.setProduct(product);
+                ci.setQuantity(0);
+                ci.setGuestId(null);              // not yet checked out
+                ci.setAddedAt(Instant.now());
+                return ci;
+            });
 
-        // 3) Save the new CartItem
-        CartItem item = CartItem.builder()
-            .cart(cart)
-            .product(p)
-            .quantity(req.quantity())
-            .addedAt(Instant.now())
-            .build();
+        item.setQuantity(item.getQuantity() + req.quantity());
         itemRepo.save(item);
-
-        // 4) Build & return view
         return buildView(cart.getCartId());
     }
 
-    /** Build a snapshot of the cart's current contents. */
+    /**
+     * Build the current cart view.
+     */
     @Transactional(readOnly = true)
-    public CartView buildView(String cartId) {
+    public CartView buildView(Integer cartId) {
         List<CartItem> items = itemRepo.findByCart_CartId(cartId);
-        BigDecimal sub = BigDecimal.ZERO;
+        BigDecimal subTotal = BigDecimal.ZERO;
         List<CartView.CartLine> lines = new ArrayList<>();
 
         for (CartItem ci : items) {
             BigDecimal lineTotal = ci.getProduct().getPrice()
-                .multiply(BigDecimal.valueOf(ci.getQuantity()));
-            sub = sub.add(lineTotal);
+                                        .multiply(BigDecimal.valueOf(ci.getQuantity()));
+            subTotal = subTotal.add(lineTotal);
             lines.add(new CartView.CartLine(
                 ci.getCartItemId(),
                 ci.getProduct().getProductId(),
@@ -86,35 +99,38 @@ public class CartService {
                 lineTotal
             ));
         }
-        return new CartView(cartId, lines, sub, sub);
+
+        return new CartView(cartId.toString(), lines, subTotal, subTotal);
     }
 
     /**
-     * Update quantity of a cart item. If qty <= 0, removes the item.
-     * Returns updated cart view.
+     * Update quantity by cart-item ID (deletes if qty ≤ 0).
      */
     @Transactional
     public CartView updateQty(Integer itemId, int qty) {
         CartItem item = itemRepo.findById(itemId)
-            .orElseThrow(() -> new IllegalArgumentException("Cart item not found"));
+            .orElseThrow(() -> new IllegalArgumentException(
+                "Cart item not found: " + itemId));
+
         if (qty <= 0) {
             itemRepo.delete(item);
         } else {
             item.setQuantity(qty);
+            itemRepo.save(item);
         }
         return buildView(item.getCart().getCartId());
     }
 
     /**
-     * Update quantity of a cart item by productId. If qty <= 0, removes the item.
-     * Returns updated cart view.
+     * Update by productId (deletes if qty ≤ 0).
      */
     @Transactional
-    public CartView updateByProductId(String cartId, Integer productId, Integer quantity) {
-        CartItem item = itemRepo.findByCart_CartIdAndProduct_ProductId(cartId, productId)
-            .orElseThrow(() -> new IllegalArgumentException("No item found for product in cart"));
-        
-        if (quantity == 0) {
+    public CartView updateByProductId(Integer cartId, Integer productId, Integer quantity) {
+        CartItem item = itemRepo
+            .findByCart_CartIdAndProduct_ProductId(cartId, productId)
+            .orElseThrow(() -> new IllegalArgumentException("Item not in cart"));
+
+        if (quantity <= 0) {
             itemRepo.delete(item);
         } else {
             item.setQuantity(quantity);
@@ -124,33 +140,29 @@ public class CartService {
     }
 
     /**
-     * Delete a cart item by productId.
-     * Returns updated cart view.
+     * Remove a product from the cart.
      */
     @Transactional
-    public CartView deleteByProductId(String cartId, Integer productId) {
-        CartItem item = itemRepo.findByCart_CartIdAndProduct_ProductId(cartId, productId)
-            .orElseThrow(() -> new IllegalArgumentException("No cart item found for product"));
-        itemRepo.delete(item);
+    public CartView deleteByProductId(Integer cartId, Integer productId) {
+        itemRepo.findByCart_CartIdAndProduct_ProductId(cartId, productId)
+            .ifPresent(itemRepo::delete);
         return buildView(cartId);
     }
 
     /**
-     * Get cart item by productId.
-     * Returns Optional<CartItemDto> or empty if not found.
+     * Fetch a single cart-item by productId.
      */
     @Transactional(readOnly = true)
-    public Optional<CartItemDto> getItemByProductId(String cartId, Integer productId) {
+    public Optional<CartItemDto> getItemByProductId(Integer cartId, Integer productId) {
         return itemRepo.findByCart_CartIdAndProduct_ProductId(cartId, productId)
-            .map(CartItemDto::from);
+                       .map(CartItemDto::from);
     }
 
     /**
-     * Get total count of items in cart.
-     * Returns the sum of all quantities.
+     * Get total item count in the cart.
      */
     @Transactional(readOnly = true)
-    public int getItemCount(String cartId) {
+    public int getItemCount(Integer cartId) {
         return itemRepo.countByCart_CartId(cartId);
     }
 }
