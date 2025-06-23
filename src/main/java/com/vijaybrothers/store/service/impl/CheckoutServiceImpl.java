@@ -5,6 +5,7 @@ import com.vijaybrothers.store.dto.cart.CartView;
 import com.vijaybrothers.store.dto.checkout.GuestCheckoutRequest;
 import com.vijaybrothers.store.dto.checkout.GuestCheckoutResponse;
 import com.vijaybrothers.store.dto.checkout.OrderCheckoutResponse;
+import com.vijaybrothers.store.dto.payments.PlaceOrderResponse;
 import com.vijaybrothers.store.model.GuestCheckoutDetails;
 import com.vijaybrothers.store.model.Order;
 import com.vijaybrothers.store.model.OrderItem;
@@ -18,6 +19,7 @@ import com.vijaybrothers.store.repository.ProductRepository;
 import com.vijaybrothers.store.service.CartService;
 import com.vijaybrothers.store.service.CheckoutService;
 import com.vijaybrothers.store.service.PaymentService;
+import com.razorpay.RazorpayException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -113,8 +115,12 @@ public class CheckoutServiceImpl implements CheckoutService {
             orderItemRepo.save(item);
         }
 
-        String sessionUrl = paymentService.createPaymentSession(orderNumber, cart.grandTotal());
-        return new OrderCheckoutResponse(order.getOrderId().intValue(), orderNumber, sessionUrl);
+        try {
+            PlaceOrderResponse orderResponse = paymentService.createPaymentSession(orderNumber, cart.grandTotal());
+            return new OrderCheckoutResponse(order.getOrderId().intValue(), orderNumber, orderResponse.getOrderId());
+        } catch (RazorpayException e) {
+            throw new RuntimeException("Payment session creation failed: " + e.getMessage(), e);
+        }
     }
 
     @Override

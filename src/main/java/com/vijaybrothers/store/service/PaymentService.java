@@ -1,5 +1,4 @@
 // src/main/java/com/vijaybrothers/store/service/PaymentService.java
-
 package com.vijaybrothers.store.service;
 
 import com.vijaybrothers.store.dto.payments.PaymentCreateRequest;
@@ -85,7 +84,8 @@ public class PaymentService {
 
         // signature validation
         try {
-            Utils.verifyPaymentSignature(attrs, keySecret);
+            JSONObject attrsJson = new JSONObject(attrs);
+            Utils.verifyPaymentSignature(attrsJson, keySecret);
         } catch (RazorpayException e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid signature");
         }
@@ -134,7 +134,7 @@ public class PaymentService {
     }
 
     /**
-     * Webhook handler: update a payment’s status based on payload.
+     * Webhook handler: update a payment's status based on payload.
      */
     public void processWebhook(Map<String,Object> payload) {
         String razorOrderId = (String) payload.get("razorpay_order_id");
@@ -150,7 +150,7 @@ public class PaymentService {
                 HttpStatus.NOT_FOUND, "Payment not found for order: " + razorOrderId));
 
         p.setStatus("payment.captured".equals(event) ? PaymentStatus.PAID : p.getStatus());
-        p.setUpdatedAt(OffsetDateTime.now());
+        // Removed the setUpdatedAt call as it doesn't exist
         paymentRepository.save(p);
     }
 }
