@@ -31,7 +31,7 @@ public class PaymentController {
 
    
     @GetMapping("/{orderId}")
-    public ResponseEntity<PaymentDetailDto> getDetails(@PathVariable String orderId) {
+    public ResponseEntity<PaymentDetailDto> getDetails(@PathVariable Long orderId) {
         PaymentDetailDto dto = svc.fetchDetails(orderId);
         return ResponseEntity.ok(dto);
     }

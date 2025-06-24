@@ -101,8 +101,8 @@ public class CheckoutServiceImpl implements CheckoutService {
             orderItemRepo.save(item);
         }
 
-        PlaceOrderResponse orderResponse = paymentService.createPaymentSession(orderNumber, cart.grandTotal());
-        return new OrderCheckoutResponse(order.getOrderId().intValue(), orderNumber, orderResponse.getOrderId());
+        PlaceOrderResponse orderResponse = paymentService.createPaymentSession(order.getOrderId(), cart.grandTotal());
+        return new OrderCheckoutResponse(order.getOrderId().intValue(), orderNumber, orderResponse.getOrderId().toString());
     }
 
     @Override

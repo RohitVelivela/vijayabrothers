@@ -6,7 +6,7 @@ import lombok.Setter;
 @Getter
 @Setter
 public class PaymentRequestDto {
-    private String orderId;
+    private Long orderId;
     private Long amount;
     private String receipt; 
 }

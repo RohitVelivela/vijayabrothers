@@ -28,7 +28,7 @@ public class ProductController {
     @GetMapping("/{productId}")
     public ResponseEntity<?> getProductById(@PathVariable Integer productId) {
         try {
-            ProductDetailDto product = service.getProductById(productId);
+            ProductDetailDto product = service.getProductDetailById(productId);
             return ResponseEntity.ok(product);
         } catch (IllegalArgumentException e) {
             return ResponseEntity
@@ -58,7 +58,7 @@ public class ProductController {
         @RequestParam(defaultValue="20") int size
     ) {
         Pageable pageable = PageRequest.of(page, size, Sort.by("name").ascending());
-        return service.search(q, pageable);
+        return service.search(null, q, pageable);
     }
 
     /**

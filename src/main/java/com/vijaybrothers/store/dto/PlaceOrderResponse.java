@@ -6,7 +6,7 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 public class PlaceOrderResponse {
-    private String orderId;
+    private Long orderId;
     private String currency;
     private Long amount;
     private String status;

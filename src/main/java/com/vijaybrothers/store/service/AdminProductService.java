@@ -61,7 +61,7 @@ public class AdminProductService {
     public List<ProductDto> lowStock() {
         return productRepo.findByStockQuantityLessThan(lowStockThreshold)
             .stream()
-            .map(ProductDto::from)
+            .map(ProductDto::fromEntity)
             .collect(Collectors.toList());
     }
 

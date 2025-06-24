@@ -82,7 +82,7 @@ public class OrderServiceImpl implements OrderService {
         }
 
       return new PlaceOrderResponse(
-        String.valueOf(order.getOrderId()),      // Convert Long → String
+        order.getOrderId(),                      // Long orderId
         "INR",                                   // Use actual currency if available
         order.getTotalAmount().longValue(),      // Convert BigDecimal → Long
         order.getOrderStatus().toString()        // Convert enum → String

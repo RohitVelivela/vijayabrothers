@@ -9,7 +9,9 @@ public class Payment {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long paymentId;
 
-    private String orderId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "order_id", foreignKey = @ForeignKey(name = "order_id_fk"))
+    private Order order;
     private String gateway;
     private String method;
 
@@ -37,8 +39,8 @@ public class Payment {
     // getters & setters...
     public Long getPaymentId() { return paymentId; }
     public void setPaymentId(Long paymentId) { this.paymentId = paymentId; }
-    public String getOrderId() { return orderId; }
-    public void setOrderId(String orderId) { this.orderId = orderId; }
+    public Order getOrder() { return order; }
+    public void setOrder(Order order) { this.order = order; }
     public String getGateway() { return gateway; }
     public void setGateway(String gateway) { this.gateway = gateway; }
     public String getMethod() { return method; }

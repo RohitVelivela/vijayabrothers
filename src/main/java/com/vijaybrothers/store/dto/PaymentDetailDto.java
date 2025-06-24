@@ -9,7 +9,7 @@ import java.time.OffsetDateTime;
 @AllArgsConstructor
 public class PaymentDetailDto {
     private Long paymentId;
-    private String orderId;
+    private Long orderId;
     private String status;
     private Long amount;
     private OffsetDateTime paidAt;

@@ -22,7 +22,7 @@ public class DashboardService {
     public DashboardStatsDto getStats() {
         long totalOrders = orderRepo.count();
         var totalRevenue = orderRepo.sumTotalAmount();
-        long lowStockCount = productRepo.countByStockQuantityLessThan(lowStockThreshold);
+        long lowStockCount = productRepo.findByStockQuantityLessThan(lowStockThreshold).size();
         long totalProducts = productRepo.count();
 
         return new DashboardStatsDto(

@@ -4,6 +4,7 @@ com\vijaybrothers\store\dto\DashboardStatsDto.class
 com\vijaybrothers\store\exception\ResourceNotFoundException.class
 com\vijaybrothers\store\repository\ProductRepository.class
 com\vijaybrothers\store\controller\AdminSeoController.class
+com\vijaybrothers\store\dto\CreateProductRequest.class
 com\vijaybrothers\store\repository\GuestCheckoutDetailsRepository.class
 com\vijaybrothers\store\controller\AdminBannerController.class
 com\vijaybrothers\store\dto\PaymentVerificationDto.class
@@ -28,7 +29,6 @@ com\vijaybrothers\store\service\GuestCheckoutService.class
 com\vijaybrothers\store\service\ProductQueryService.class
 com\vijaybrothers\store\dto\GuestInfoDto.class
 com\vijaybrothers\store\dto\ProductDetail$CategoryInfo.class
-com\vijaybrothers\store\dto\ProductDetailDto$CategoryInfo.class
 com\vijaybrothers\store\service\AdminOrderService.class
 com\vijaybrothers\store\dto\AdminSignupRequest.class
 com\vijaybrothers\store\dto\SeoSettingDto.class
@@ -47,6 +47,7 @@ com\vijaybrothers\store\repository\OrderRepository.class
 com\vijaybrothers\store\dto\CategoryProductAssignRequest.class
 com\vijaybrothers\store\repository\OrderItemRepository.class
 com\vijaybrothers\store\service\impl\CheckoutServiceImpl.class
+com\vijaybrothers\store\service\impl\ProductServiceImpl.class
 com\vijaybrothers\store\repository\UserDetailRepository.class
 com\vijaybrothers\store\dto\SeoUpdateRequest.class
 com\vijaybrothers\store\dto\ProductSummaryDto.class
@@ -77,6 +78,7 @@ com\vijaybrothers\store\dto\checkout\GuestCheckoutResponse.class
 com\vijaybrothers\store\dto\ProductDto.class
 com\vijaybrothers\store\service\impl\GuestCheckoutServiceImpl.class
 com\vijaybrothers\store\dto\CategoryItem.class
+com\vijaybrothers\store\dto\ProductResponseDto.class
 com\vijaybrothers\store\service\AdminCategoryService.class
 com\vijaybrothers\store\dto\BannerDto.class
 com\vijaybrothers\store\model\Admin.class
@@ -93,6 +95,7 @@ com\vijaybrothers\store\model\ProductImage$ProductImageBuilder.class
 com\vijaybrothers\store\service\AdminProductService.class
 com\vijaybrothers\store\controller\AdminOrderController.class
 com\vijaybrothers\store\controller\ProductPublicController.class
+com\vijaybrothers\store\dto\UpdateProductRequest.class
 com\vijaybrothers\store\model\Category.class
 com\vijaybrothers\store\model\PaymentStatus.class
 com\vijaybrothers\store\service\DashboardService.class

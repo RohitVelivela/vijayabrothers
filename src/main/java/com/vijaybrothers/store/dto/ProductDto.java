@@ -1,36 +1,31 @@
 package com.vijaybrothers.store.dto;
 
 import com.vijaybrothers.store.model.Product;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
-import java.time.Instant;
 
-@Getter @Setter @NoArgsConstructor @AllArgsConstructor
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class ProductDto {
-    private Integer   productId;
-    private String    productCode;
-    private String    name;
-    private String    description;
+    private Integer productId;
+    private String name;
     private BigDecimal price;
-    private Integer   categoryId;
-    private Integer   stockQuantity;
-    private Boolean   inStock;
-    private String    youtubeLink;
-    private Instant   createdAt;
+    private String description;
+    private Integer categoryId;
+    private Boolean inStock;
 
-    public static ProductDto from(Product p) {
-        return new ProductDto(
-            p.getProductId(),
-            p.getProductCode(),
-            p.getName(),
-            p.getDescription(),
-            p.getPrice(),
-            p.getCategory().getCategoryId(),
-            p.getStockQuantity(),
-            p.getInStock(),
-            p.getYoutubeLink(),
-            p.getCreatedAt()
-        );
+    public static ProductDto fromEntity(Product product) {
+        ProductDto dto = new ProductDto();
+        dto.setProductId(product.getProductId());
+        dto.setName(product.getName());
+        dto.setPrice(product.getPrice());
+        dto.setDescription(product.getDescription());
+        dto.setCategoryId(product.getCategory() != null ? product.getCategory().getCategoryId() : null);
+        dto.setInStock(product.getInStock());
+        return dto;
     }
 }

@@ -45,7 +45,7 @@ public class CategoryService {
             .orElseThrow(() -> new IllegalArgumentException("Category not found"));
 
         // 2. Get and transform products
-        return productRepo.findAllByCategoryCategoryId(categoryId).stream()
+        return productRepo.findByCategory_CategoryId(categoryId).stream()
             .map(this::toProductSummaryDto)
             .collect(Collectors.toList());
     }
