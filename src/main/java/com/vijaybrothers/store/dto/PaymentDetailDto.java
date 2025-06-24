@@ -1,14 +1,16 @@
 package com.vijaybrothers.store.dto;
 
-import java.math.BigDecimal;
-import java.time.Instant;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
 
-public record PaymentDetailDto(
-    Long    paymentId,
-    Long    orderId,
-    BigDecimal amount,
-    String     method,
-    String     transactionId,
-    String     status,
-    Instant    createdAt
-) {}
+import java.time.OffsetDateTime;
+
+@Getter
+@AllArgsConstructor
+public class PaymentDetailDto {
+    private Long paymentId;
+    private String orderId;
+    private String status;
+    private Long amount;
+    private OffsetDateTime paidAt;
+}

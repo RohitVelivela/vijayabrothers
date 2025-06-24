@@ -1,33 +1,34 @@
 package com.vijaybrothers.store.controller;
 
+import com.vijaybrothers.store.dto.PaymentRequestDto;
+import com.vijaybrothers.store.dto.PaymentVerificationDto;
 import com.vijaybrothers.store.service.PaymentService;
 import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Map;
-
 @RestController
 @RequestMapping("/api/payments")
-@RequiredArgsConstructor
 public class PaymentWebhookController {
 
     private final PaymentService paymentService;
 
-    /**
-     * Receive payment gateway callbacks.
-     * Gateway will POST JSON containing at least:
-     *  - orderNumber (String)
-     *  - status      (String; e.g. "COMPLETED","FAILED")
-     */
+    @Autowired
+    public PaymentWebhookController(PaymentService paymentService) {
+        this.paymentService = paymentService;
+    }
+
+    @PostMapping("/create-order")
+    public ResponseEntity<?> createPaymentOrder(@Valid @RequestBody PaymentRequestDto dto) {
+        String orderId = paymentService.createPaymentOrder(dto);
+        return ResponseEntity.ok(orderId);
+    }
+
+
     @PostMapping("/webhook")
-    public ResponseEntity<Map<String,String>> handleWebhook(
-        @RequestBody @Valid Map<String, Object> payload,
-        @RequestHeader(name="X-Gateway-Signature", required=false) String signature
-    ) {
-        // TODO: verify signature if your gateway supports HMAC verification
-        paymentService.processWebhook(payload);
-        return ResponseEntity.ok(Map.of("status", "success"));
+    public ResponseEntity<String> handleWebhook(@RequestBody String payload) {
+        paymentService.handleWebhook(payload);
+        return ResponseEntity.ok("Webhook received");
     }
 }

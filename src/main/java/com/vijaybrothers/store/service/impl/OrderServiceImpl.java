@@ -10,6 +10,8 @@ import com.vijaybrothers.store.model.Order;
 import com.vijaybrothers.store.model.OrderItem;
 import com.vijaybrothers.store.model.OrderStatus;
 import com.vijaybrothers.store.model.PaymentStatus;
+import com.vijaybrothers.store.model.PaymentStatus;
+
 import com.vijaybrothers.store.model.GuestCheckoutDetails;
 import com.vijaybrothers.store.repository.OrderItemRepository;
 import com.vijaybrothers.store.repository.OrderRepository;
@@ -79,7 +81,16 @@ public class OrderServiceImpl implements OrderService {
             itemRepo.save(orderItem);
         }
 
-        return new PlaceOrderResponse(savedOrder.getOrderId(), orderNumber, total, savedOrder.getOrderStatus().name());
+      return new PlaceOrderResponse(
+        String.valueOf(order.getOrderId()),      // Convert Long → String
+        "INR",                                   // Use actual currency if available
+        order.getTotalAmount().longValue(),      // Convert BigDecimal → Long
+        order.getOrderStatus().toString()        // Convert enum → String
+);
+
+
+
+
     }
 
     @Override

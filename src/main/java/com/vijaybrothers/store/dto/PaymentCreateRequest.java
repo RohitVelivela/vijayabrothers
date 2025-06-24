@@ -1,12 +1,34 @@
 package com.vijaybrothers.store.dto;
 
-import jakarta.validation.constraints.*;
-import java.math.BigDecimal;
+import java.math.BigDecimal; // ✅ Required import
 
-public record PaymentCreateRequest(
-    @NotNull     Integer     orderId,
-    @NotNull     BigDecimal  amount,
-    @NotBlank    String      method,
-    @NotBlank    String      transactionId,
-    @NotBlank    String      status         // PAID, FAILED, REFUNDED
-) {}
+public class PaymentCreateRequest {
+    private BigDecimal amount;
+    private String currency;
+    private String receipt;
+
+    // Getters and Setters
+    public BigDecimal getAmount() {
+        return amount;
+    }
+
+    public void setAmount(BigDecimal amount) {
+        this.amount = amount;
+    }
+
+    public String getCurrency() {
+        return currency;
+    }
+
+    public void setCurrency(String currency) {
+        this.currency = currency;
+    }
+
+    public String getReceipt() {
+        return receipt;
+    }
+
+    public void setReceipt(String receipt) {
+        this.receipt = receipt;
+    }
+}

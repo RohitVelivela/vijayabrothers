@@ -1,59 +1,56 @@
 package com.vijaybrothers.store.model;
-
 import jakarta.persistence.*;
-import lombok.*;
-
-import java.math.BigDecimal;
-import java.time.Instant;
+import java.time.OffsetDateTime;
 
 @Entity
 @Table(name = "payments")
-@Getter
-@Setter
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
 public class Payment {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer paymentId;
+    private Long paymentId;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "order_id", nullable = false)
-    private Order order;
-
-    @Column(nullable = false, precision = 10, scale = 2)
-    private BigDecimal amount;
-
-    @Column(nullable = false)
+    private String orderId;
+    private String gateway;
     private String method;
 
-    @Column(nullable = false, unique = true)
-    private String transactionId;
-
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
     private PaymentStatus status;
 
-    @Column(nullable = false)
-    private Instant createdAt;
+    private String transactionId;
+    private OffsetDateTime paidAt;
+    private Long amount;
 
-    @Column(nullable = false)
-    private Instant updatedAt;
+    @Column(updatable = false)
+    private OffsetDateTime createdAt;
+    private OffsetDateTime updatedAt;
 
     @PrePersist
-    protected void onCreate() {
-        Instant now = Instant.now();
-        if (createdAt == null) {
-            createdAt = now;
-        }
-        if (updatedAt == null) {
-            updatedAt = now;
-        }
+    void onCreate() {
+        this.createdAt = OffsetDateTime.now();
     }
 
     @PreUpdate
-    protected void onUpdate() {
-        updatedAt = Instant.now();
+    void onUpdate() {
+        this.updatedAt = OffsetDateTime.now();
     }
+
+    // getters & setters...
+    public Long getPaymentId() { return paymentId; }
+    public void setPaymentId(Long paymentId) { this.paymentId = paymentId; }
+    public String getOrderId() { return orderId; }
+    public void setOrderId(String orderId) { this.orderId = orderId; }
+    public String getGateway() { return gateway; }
+    public void setGateway(String gateway) { this.gateway = gateway; }
+    public String getMethod() { return method; }
+    public void setMethod(String method) { this.method = method; }
+    public PaymentStatus getStatus() { return status; }
+    public void setStatus(PaymentStatus status) { this.status = status; }
+    public String getTransactionId() { return transactionId; }
+    public void setTransactionId(String transactionId) { this.transactionId = transactionId; }
+    public OffsetDateTime getPaidAt() { return paidAt; }
+    public void setPaidAt(OffsetDateTime paidAt) { this.paidAt = paidAt; }
+    public Long getAmount() { return amount; }
+    public void setAmount(Long amount) { this.amount = amount; }
+    public OffsetDateTime getCreatedAt() { return createdAt; }
+    public OffsetDateTime getUpdatedAt() { return updatedAt; }
 }

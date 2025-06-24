@@ -1,30 +1,19 @@
-// src/main/java/com/vijaybrothers/store/service/impl/CheckoutServiceImpl.java
 package com.vijaybrothers.store.service.impl;
 
 import com.vijaybrothers.store.dto.cart.CartView;
 import com.vijaybrothers.store.dto.checkout.GuestCheckoutRequest;
 import com.vijaybrothers.store.dto.checkout.GuestCheckoutResponse;
 import com.vijaybrothers.store.dto.checkout.OrderCheckoutResponse;
-import com.vijaybrothers.store.dto.payments.PlaceOrderResponse;
-import com.vijaybrothers.store.model.GuestCheckoutDetails;
-import com.vijaybrothers.store.model.Order;
-import com.vijaybrothers.store.model.OrderItem;
-import com.vijaybrothers.store.model.OrderStatus;
-import com.vijaybrothers.store.model.PaymentStatus;
-import com.vijaybrothers.store.repository.CartItemRepository;
-import com.vijaybrothers.store.repository.GuestCheckoutDetailsRepository;
-import com.vijaybrothers.store.repository.OrderItemRepository;
-import com.vijaybrothers.store.repository.OrderRepository;
-import com.vijaybrothers.store.repository.ProductRepository;
+import com.vijaybrothers.store.dto.PlaceOrderResponse;
+import com.vijaybrothers.store.model.*;
+import com.vijaybrothers.store.repository.*;
 import com.vijaybrothers.store.service.CartService;
 import com.vijaybrothers.store.service.CheckoutService;
 import com.vijaybrothers.store.service.PaymentService;
-import com.razorpay.RazorpayException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -35,12 +24,12 @@ import java.util.UUID;
 public class CheckoutServiceImpl implements CheckoutService {
 
     private final GuestCheckoutDetailsRepository guestRepo;
-    private final CartItemRepository           cartItemRepo;
-    private final OrderRepository              orderRepo;
-    private final OrderItemRepository          orderItemRepo;
-    private final ProductRepository            productRepo;
-    private final CartService                  cartService;
-    private final PaymentService               paymentService;
+    private final CartItemRepository cartItemRepo;
+    private final OrderRepository orderRepo;
+    private final OrderItemRepository orderItemRepo;
+    private final ProductRepository productRepo;
+    private final CartService cartService;
+    private final PaymentService paymentService;
 
     @Override
     public GuestCheckoutResponse createGuest(Integer cartId, GuestCheckoutRequest request) {
@@ -65,12 +54,12 @@ public class CheckoutServiceImpl implements CheckoutService {
         if (cartId == null) {
             throw new IllegalArgumentException("cartId is required");
         }
+
         CartView cart = cartService.buildView(cartId);
         if (cart.lines().isEmpty()) {
             throw new IllegalArgumentException("Cart is empty");
         }
 
-        // First create or find the guest checkout details
         GuestCheckoutDetails guestDetails = new GuestCheckoutDetails();
         guestDetails.setName(req.name());
         guestDetails.setEmail(req.email());
@@ -83,50 +72,43 @@ public class CheckoutServiceImpl implements CheckoutService {
         guestDetails = guestRepo.save(guestDetails);
 
         String orderNumber = generateOrderNumber();
-        String fullAddress = String.format(
-            "%s, %s, %s %s",
-            req.address(), req.city(), req.state(), req.postalCode()
-        );
+        String fullAddress = String.format("%s, %s, %s %s", req.address(), req.city(), req.state(), req.postalCode());
 
         Order order = Order.builder()
-            .orderNumber(orderNumber)
-            .guestCheckoutDetails(guestDetails)
-            .customerEmail(req.email())
-            .shippingName(req.name())
-            .shippingEmail(req.email())
-            .shippingPhone(req.phone())
-            .shippingAddress(fullAddress)
-            .totalAmount(cart.grandTotal())
-            .paymentStatus(PaymentStatus.PENDING)
-            .orderStatus(OrderStatus.PENDING)
-            .createdAt(java.time.ZonedDateTime.now())
-            .build();
+                .orderNumber(orderNumber)
+                .guestCheckoutDetails(guestDetails)
+                .customerEmail(req.email())
+                .shippingName(req.name())
+                .shippingEmail(req.email())
+                .shippingPhone(req.phone())
+                .shippingAddress(fullAddress)
+                .totalAmount(cart.grandTotal())
+                .paymentStatus(PaymentStatus.PENDING)
+                .orderStatus(OrderStatus.PENDING)
+                .createdAt(java.time.ZonedDateTime.now())
+                .build();
 
         order = orderRepo.save(order);
 
         for (var line : cart.lines()) {
             OrderItem item = OrderItem.builder()
-                .order(order)
-                .product(productRepo.findById(line.productId())
-                    .orElseThrow(() -> new IllegalArgumentException("Product not found")))
-                .quantity(line.quantity())
-                .unitPrice(line.price())
-                .build();
+                    .order(order)
+                    .product(productRepo.findById(line.productId())
+                            .orElseThrow(() -> new IllegalArgumentException("Product not found")))
+                    .quantity(line.quantity())
+                    .unitPrice(line.price())
+                    .build();
             orderItemRepo.save(item);
         }
 
-        try {
-            PlaceOrderResponse orderResponse = paymentService.createPaymentSession(orderNumber, cart.grandTotal());
-            return new OrderCheckoutResponse(order.getOrderId().intValue(), orderNumber, orderResponse.getOrderId());
-        } catch (RazorpayException e) {
-            throw new RuntimeException("Payment session creation failed: " + e.getMessage(), e);
-        }
+        PlaceOrderResponse orderResponse = paymentService.createPaymentSession(orderNumber, cart.grandTotal());
+        return new OrderCheckoutResponse(order.getOrderId().intValue(), orderNumber, orderResponse.getOrderId());
     }
 
     @Override
     public GuestCheckoutResponse getGuest(Integer guestId) {
         var entity = guestRepo.findById(guestId)
-            .orElseThrow(() -> new IllegalArgumentException("Guest not found: " + guestId));
+                .orElseThrow(() -> new IllegalArgumentException("Guest not found: " + guestId));
         return GuestCheckoutResponse.fromEntity(entity);
     }
 

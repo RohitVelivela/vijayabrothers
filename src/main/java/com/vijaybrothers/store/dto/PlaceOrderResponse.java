@@ -1,10 +1,13 @@
 package com.vijaybrothers.store.dto;
 
-import java.math.BigDecimal;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
 
-public record PlaceOrderResponse(
-    Long orderId,
-    String orderNumber,
-    BigDecimal totalAmount,
-    String status
-) {}
+@Getter
+@AllArgsConstructor
+public class PlaceOrderResponse {
+    private String orderId;
+    private String currency;
+    private Long amount;
+    private String status;
+}

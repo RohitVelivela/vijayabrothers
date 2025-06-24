@@ -1,5 +1,4 @@
 package com.vijaybrothers.store.model;
-
 public enum PaymentStatus {
     PENDING,    // Initial state when order is created
     PAID,       // Payment successful
