@@ -1,232 +1,136 @@
 import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { Search, ShoppingCart, Heart, User, Menu, X, ChevronDown } from 'lucide-react';
-import { useAppContext } from '../context/AppContext';
+import { Search, ShoppingCart, Menu, X } from 'lucide-react';
 
-export default function Header() {
+const Header: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [searchQuery, setSearchQuery] = useState('');
-  const { state } = useAppContext();
-  const navigate = useNavigate();
-  const cartItemsCount = state.cart.reduce((sum, item) => sum + item.quantity, 0);
-
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (searchQuery.trim()) {
-      navigate(`/search?q=${encodeURIComponent(searchQuery)}`);
-      setSearchQuery('');
-    }
-  };
-
-  const navigationItems = [
-    { name: 'Fabric', href: '/collections/fabric' },
-    { name: 'Handloom Sarees', href: '/collections/handloom' },
-    { name: 'Office Wear', href: '/collections/office-wear' },
-    { name: 'Catalogue Sarees', href: '/collections/catalogue' },
-    { name: 'Featured', href: '/collections/featured' },
-    { name: 'Latest Collections', href: '/collections/latest' },
-    { name: 'Instagram', href: '/collections/instagram' },
-    { name: 'Sale', href: '/collections/sale' },
-    { name: 'About Us', href: '/about' }
-  ];
 
   return (
-    <header className="bg-white shadow-sm sticky top-0 z-50">
-      {/* Hero Banner */}
-      <div className="relative w-full bg-[#1a1a1a] overflow-hidden">
-        <div className="container mx-auto flex items-center justify-between h-[300px]">
-          {/* Left side - Model Image */}
-          <div className="relative w-2/3 h-full">
-            <img 
-              src="/banner.png" 
-              alt="Traditional Saree Collection" 
-              className="h-full w-full object-cover object-right"
-            />
-            <div className="absolute inset-0 bg-gradient-to-r from-transparent to-[#1a1a1a] opacity-50"></div>
-          </div>
-          
-          {/* Right side - Logo */}
-          <div className="absolute right-0 w-1/3 h-full flex items-center justify-center pr-8">
-            <img 
-              src="/logo.jpg" 
-              alt="Vijay Brothers Logo" 
-              className="max-w-[300px] w-full"
+    <header className="bg-white shadow-lg sticky top-0 z-50">
+      <div className="container mx-auto px-6">
+        {/* Main Header Row - Premium Layout */}
+        <div className="flex items-center justify-between h-20">
+          {/* Logo - Optimized for Clarity */}
+          <div className="flex items-center flex-shrink-0">
+            <img
+              src="/VB logo white back.png"
+              alt="Vijay Brothers"
+              className="h-16 w-auto object-contain filter brightness-110 contrast-110"
+              style={{
+                imageRendering: 'crisp-edges',
+                WebkitImageRendering: 'crisp-edges',
+                msImageRendering: 'crisp-edges'
+              }}
             />
           </div>
-        </div>
-      </div>
 
-      {/* Main Header */}
-      <div className="container mx-auto px-4 py-4">
-        <div className="flex items-center justify-between">
-          {/* Logo */}
-          <Link to="/" className="flex items-center space-x-3">
-            <img 
-              src="/logo.jpg" 
-              alt="Vijay Brothers Logo" 
-              className="h-16 w-auto object-contain"
-            />
-            <div className="hidden sm:block">
-              <h1 className="text-xl font-bold text-gray-800 tracking-wide">
-                VIJAY BROTHERS
-              </h1>
-              <p className="text-xs text-gray-600 uppercase tracking-wider">
-                Premium Sarees Collection
-              </p>
-            </div>
-          </Link>
-
-          {/* Search Bar - Desktop */}
-          <form onSubmit={handleSearch} className="hidden md:flex flex-1 max-w-lg mx-8">
+          {/* Search Bar - Wider and Centered */}
+          <div className="hidden md:flex flex-1 max-w-2xl mx-12">
             <div className="relative w-full">
               <input
                 type="text"
-                placeholder="Search your product..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-4 pr-12 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent text-gray-700 placeholder-gray-500"
+                placeholder="Search your perfect saree..."
+                className="w-full px-6 py-3 pr-14 border-2 border-gray-200 rounded-full focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500 bg-gray-50 text-base placeholder-gray-500 transition-all duration-300"
               />
-              <button
-                type="submit"
-                className="absolute right-3 top-1/2 transform -translate-y-1/2 p-1 text-gray-400 hover:text-orange-600 transition-colors"
-              >
+              <button className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-gradient-to-r from-red-600 to-red-700 text-white p-2.5 rounded-full hover:from-red-700 hover:to-red-800 transition-all duration-300 shadow-md">
                 <Search className="w-5 h-5" />
               </button>
             </div>
-          </form>
+          </div>
 
-          {/* Right Actions */}
-          <div className="flex items-center space-x-6">
-            {/* Country Selector */}
-            <div className="hidden md:flex items-center space-x-2 cursor-pointer group">
-              <div className="w-6 h-4 bg-gradient-to-b from-orange-500 via-white to-green-500 rounded-sm border border-gray-300 flex items-center justify-center relative overflow-hidden">
-                <div className="absolute inset-0 bg-gradient-to-b from-orange-500 via-white to-green-500"></div>
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <div className="w-3 h-3 border border-blue-800 rounded-full bg-blue-800 flex items-center justify-center">
-                    <div className="w-2 h-2 bg-white rounded-full"></div>
-                  </div>
-                </div>
+          {/* Cart Icon - Larger and Right-aligned */}
+          <div className="flex items-center space-x-8">
+            <div className="hidden md:flex items-center cursor-pointer hover:text-red-600 transition-colors relative group">
+              <ShoppingCart className="w-8 h-8" />
+              <div className="ml-3 flex flex-col">
+                <span className="text-sm font-semibold text-gray-800 group-hover:text-red-600">Cart</span>
+                <span className="text-xs text-gray-500">2 items</span>
               </div>
-              <span className="text-sm font-medium text-gray-700 group-hover:text-orange-600">IN</span>
-              <ChevronDown className="w-4 h-4 text-gray-500 group-hover:text-orange-600" />
+              <span className="absolute -top-2 -right-2 bg-red-600 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs font-bold shadow-md">2</span>
             </div>
 
-            {/* Wishlist */}
-            <Link to="/wishlist" className="flex flex-col items-center group">
-              <div className="relative p-2">
-                <Heart className="w-6 h-6 text-gray-600 group-hover:text-orange-600 transition-colors" />
-                {state.wishlist.length > 0 && (
-                  <span className="absolute -top-1 -right-1 bg-orange-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-medium">
-                    {state.wishlist.length}
-                  </span>
-                )}
-              </div>
-              <span className="text-xs text-gray-600 group-hover:text-orange-600 transition-colors">Wishlist</span>
-            </Link>
+            {/* Mobile Cart */}
+            <div className="md:hidden relative cursor-pointer">
+              <ShoppingCart className="w-7 h-7 text-gray-700" />
+              <span className="absolute -top-2 -right-2 bg-red-600 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold">2</span>
+            </div>
 
-            {/* Cart */}
-            <Link to="/cart" className="flex flex-col items-center group">
-              <div className="relative p-2">
-                <ShoppingCart className="w-6 h-6 text-gray-600 group-hover:text-orange-600 transition-colors" />
-                {cartItemsCount > 0 && (
-                  <span className="absolute -top-1 -right-1 bg-orange-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-medium">
-                    {cartItemsCount}
-                  </span>
-                )}
-              </div>
-              <span className="text-xs text-gray-600 group-hover:text-orange-600 transition-colors">Cart</span>
-            </Link>
-
-            {/* My Account */}
-            <Link to="/account" className="flex flex-col items-center group">
-              <div className="p-2">
-                <User className="w-6 h-6 text-gray-600 group-hover:text-orange-600 transition-colors" />
-              </div>
-              <span className="text-xs text-gray-600 group-hover:text-orange-600 transition-colors">My Account</span>
-            </Link>
-
-            {/* Mobile Menu Toggle */}
+            {/* Mobile Menu Button */}
             <button
+              className="md:hidden p-2"
               onClick={() => setIsMenuOpen(!isMenuOpen)}
-              className="md:hidden p-2 text-gray-600 hover:text-orange-600"
             >
               {isMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
             </button>
           </div>
         </div>
 
-        {/* Navigation - Desktop */}
-        <nav className="hidden md:flex justify-center mt-6 space-x-8 border-t border-gray-100 pt-4">
-          {navigationItems.map((item) => (
-            <Link
-              key={item.name}
-              to={item.href}
-              className="text-gray-700 hover:text-orange-600 font-medium transition-colors duration-200 py-2 px-1 relative group"
-            >
-              {item.name}
-              <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-orange-600 transition-all duration-300 group-hover:w-full"></span>
-            </Link>
-          ))}
+        {/* Navigation Menu - Single Line Below Main Row */}
+        <nav className="hidden md:block border-t border-gray-100">
+          <div className="flex items-center justify-center space-x-8 py-4">
+            {[
+              'Fabric', 
+              'Handloom Sarees', 
+              'Office Wear', 
+              'Catalogue Sarees', 
+              'Featured', 
+              'Latest Collections', 
+              'Instagram', 
+              'Sale', 
+              'About Us'
+            ].map((item) => (
+              <a 
+                key={item}
+                href="#" 
+                className="text-gray-700 hover:text-red-600 transition-colors font-medium text-sm uppercase tracking-wide whitespace-nowrap py-2 px-1 relative group"
+              >
+                {item}
+                <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-red-600 transition-all duration-300 group-hover:w-full"></span>
+              </a>
+            ))}
+          </div>
         </nav>
-      </div>
 
-      {/* Mobile Menu */}
-      {isMenuOpen && (
-        <div className="md:hidden bg-white border-t border-gray-200 shadow-lg">
-          <div className="px-4 py-4">
-            {/* Mobile Search */}
-            <form onSubmit={handleSearch} className="mb-4">
-              <div className="relative">
-                <input
-                  type="text"
-                  placeholder="Search your product..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full pl-4 pr-12 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-                />
-                <button
-                  type="submit"
-                  className="absolute right-3 top-1/2 transform -translate-y-1/2 p-1 text-gray-400"
-                >
-                  <Search className="w-5 h-5" />
-                </button>
-              </div>
-            </form>
+        {/* Mobile Navigation Menu */}
+        <nav className={`${isMenuOpen ? 'block' : 'hidden'} md:hidden border-t border-gray-100`}>
+          <div className="py-4 space-y-1">
+            {[
+              'Fabric', 
+              'Handloom Sarees', 
+              'Office Wear', 
+              'Catalogue Sarees', 
+              'Featured', 
+              'Latest Collections', 
+              'Instagram', 
+              'Sale', 
+              'About Us'
+            ].map((item) => (
+              <a 
+                key={item}
+                href="#" 
+                className="block text-gray-700 hover:text-red-600 hover:bg-red-50 transition-colors font-medium text-sm uppercase tracking-wide py-3 px-4 rounded-md"
+              >
+                {item}
+              </a>
+            ))}
+          </div>
+        </nav>
 
-            {/* Mobile Navigation */}
-            <nav className="space-y-2">
-              {navigationItems.map((item) => (
-                <Link
-                  key={item.name}
-                  to={item.href}
-                  className="block py-3 px-2 text-gray-700 hover:text-orange-600 hover:bg-orange-50 rounded-lg transition-colors"
-                  onClick={() => setIsMenuOpen(false)}
-                >
-                  {item.name}
-                </Link>
-              ))}
-            </nav>
-
-            {/* Mobile Country Selector */}
-            <div className="mt-4 pt-4 border-t border-gray-200">
-              <div className="flex items-center space-x-2 cursor-pointer">
-                <div className="w-6 h-4 bg-gradient-to-b from-orange-500 via-white to-green-500 rounded-sm border border-gray-300"></div>
-                <span className="text-sm font-medium text-gray-700">India (IN)</span>
-                <ChevronDown className="w-4 h-4 text-gray-500" />
-              </div>
-            </div>
-
-            {/* Mobile Traditional Image */}
-            <div className="mt-4 pt-4 border-t border-gray-200 lg:hidden">
-              <img 
-                src="/main image.png" 
-                alt="Traditional Saree Collection" 
-                className="w-full h-20 object-cover rounded-lg shadow-md"
-              />
-            </div>
+        {/* Mobile Search */}
+        <div className="md:hidden pb-4">
+          <div className="relative">
+            <input
+              type="text"
+              placeholder="Search your perfect saree..."
+              className="w-full px-5 py-3 pr-12 border-2 border-gray-200 rounded-full focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500 bg-gray-50 text-base"
+            />
+            <button className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-red-600 text-white p-2 rounded-full">
+              <Search className="w-4 h-4" />
+            </button>
           </div>
         </div>
-      )}
+      </div>
     </header>
   );
-}
+};
+
+export default Header;
